@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   web:
     image: linkstackorg/linkstack:latest
@@ -18,14 +16,14 @@ services:
       - DB_PORT=3306
       - DB_DATABASE=linkstack
       - DB_USERNAME=${SERVICE_USER_DB:-linkstack_user}
-      - DB_PASSWORD=${SERVICE_PASSWORD_DB:-linkstack_password}
+      - DB_PASSWORD=${SERVICE_PASSWORD_DB}
       - DB_PREFIX=linkstack_
       # Cache and session drivers
       - CACHE_DRIVER=redis
       - SESSION_DRIVER=redis
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-null}
+      - REDIS_PASSWORD=${SERVICE_PASSWORD_REDIS}
     depends_on:
       db:
         condition: service_healthy
@@ -48,10 +46,11 @@ services:
     ports:
       - "3306:3306"
     environment:
-      - MYSQL_ROOT_PASSWORD=${SERVICE_PASSWORD_MYSQL_ROOT:-root_password}
+      # MySQL configuration using Coolify-generated passwords
+      - MYSQL_ROOT_PASSWORD=${SERVICE_PASSWORD_MYSQL_ROOT}
       - MYSQL_DATABASE=linkstack
       - MYSQL_USER=${SERVICE_USER_DB:-linkstack_user}
-      - MYSQL_PASSWORD=${SERVICE_PASSWORD_DB:-linkstack_password}
+      - MYSQL_PASSWORD=${SERVICE_PASSWORD_DB}
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root --password=$${MYSQL_ROOT_PASSWORD} || exit 1"]
       interval: 10s
@@ -67,11 +66,11 @@ services:
     container_name: linkstack_redis
     ports:
       - "6379:6379"
-    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD:-null}"]
+    command: ["redis-server", "--requirepass", "${SERVICE_PASSWORD_REDIS}"]
     environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-null}
+      - REDIS_PASSWORD=${SERVICE_PASSWORD_REDIS}
     healthcheck:
-      test: ["CMD-SHELL", "redis-cli -h localhost -p 6379 ping | grep PONG || exit 1"]
+      test: ["CMD-SHELL", "redis-cli -h localhost -p 6379 -a $${REDIS_PASSWORD} ping | grep PONG || exit 1"]
       interval: 10s
       timeout: 10s
       retries: 5
