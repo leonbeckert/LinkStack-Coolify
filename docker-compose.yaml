@@ -15,7 +15,9 @@ services:
       - DB_HOST=db
       - DB_PORT=3306
       - DB_DATABASE=linkstack
+      - SERVICE_USER_DB
       - DB_USERNAME=${SERVICE_USER_DB}
+      - SERVICE_PASSWORD_DB
       - DB_PASSWORD=${SERVICE_PASSWORD_DB}
       - DB_PREFIX=linkstack_
       # Cache and session drivers
@@ -23,6 +25,7 @@ services:
       - SESSION_DRIVER=redis
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - SERVICE_PASSWORD_RED
       - REDIS_PASSWORD=${SERVICE_PASSWORD_REDIS}
     depends_on:
       db:
@@ -47,9 +50,11 @@ services:
       - "3306:3306"
     environment:
       # MySQL configuration using Coolify-generated passwords
+      - SERVICE_PASSWORD_MYSQL_ROOT
       - MYSQL_ROOT_PASSWORD=${SERVICE_PASSWORD_MYSQL_ROOT}
-      - MYSQL_DATABASE=linkstack
+      - MYSQL_DATABASE=linkstacK
       - MYSQL_USER=${SERVICE_USER_DB:-linkstack}
+      - SERVICE_PASSWORD_DB
       - MYSQL_PASSWORD=${SERVICE_PASSWORD_DB}
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root --password=$${MYSQL_ROOT_PASSWORD} || exit 1"]
@@ -68,6 +73,7 @@ services:
       - "6379:6379"
     command: ["redis-server", "--requirepass", "${SERVICE_PASSWORD_REDIS}"]
     environment:
+      - SERVICE_PASSWORD_REDIS
       - REDIS_PASSWORD=${SERVICE_PASSWORD_REDIS}
     healthcheck:
       test: ["CMD-SHELL", "redis-cli -h localhost -p 6379 -a $${REDIS_PASSWORD} ping | grep PONG || exit 1"]
