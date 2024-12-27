@@ -1,46 +1,66 @@
+version: '3.8'
+
 services:
   web:
-    build: .
+    image: linkstackorg/linkstack:latest
     container_name: linkstack_web
     ports:
       - "80:80"
-    volumes:
-      - .:/var/www/html
     environment:
+      # Application settings
       - APP_ENV=production
       - APP_DEBUG=false
       - APP_KEY=base64:random_key
-      - _APP_URL=$SERVICE_FQDN_LINKSTACK
-      - SERVICE_FQDN_LINKSTACK_3000
+      - APP_URL=${SERVICE_FQDN_LINKSTACK:-http://localhost}
+      # Database configuration
       - DB_CONNECTION=mysql
       - DB_HOST=db
       - DB_PORT=3306
       - DB_DATABASE=linkstack
-      - SERVICE_USER_DB
-      - SERVICE_PASSWORD_DB
-      - DB_USERNAME=${SERVICE_USER_DB}
-      - DB_PASSWORD=${SERVICE_PASSWORD_DB}
+      - DB_USERNAME=${SERVICE_USER_DB:-linkstack_user}
+      - DB_PASSWORD=${SERVICE_PASSWORD_DB:-linkstack_password}
       - DB_PREFIX=linkstack_
+      # Cache and session drivers
       - CACHE_DRIVER=file
       - SESSION_DRIVER=file
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:80 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    volumes:
+      - linkstack_data:/htdocs
+    user: apache:apache
+    networks:
+      - linkstack_net
 
   db:
     image: mysql:8.0
-    container_name: linkstackdb
+    container_name: linkstack_db
     ports:
       - "3306:3306"
     environment:
-      - SERVICE_USER_MYSQL
-      - SERVICE_PASSWORD_MYSQL
-      - SERVICE_PASSWORD_MYSQL_ROOT
-      - MYSQL_ROOT_PASSWORD=${SERVICE_PASSWORD_MYSQL_ROOT}
+      # MySQL configuration
+      - MYSQL_ROOT_PASSWORD=${SERVICE_PASSWORD_MYSQL_ROOT:-root_password}
       - MYSQL_DATABASE=linkstack
-      - MYSQL_USER=${SERVICE_MYSQL_USER}
-      - MYSQL_PASSWORD=${SERVICE_MYSQL_PASSWORD}
+      - MYSQL_USER=${SERVICE_USER_DB:-linkstack_user}
+      - MYSQL_PASSWORD=${SERVICE_PASSWORD_DB:-linkstack_password}
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root --password=$${MYSQL_ROOT_PASSWORD} || exit 1"]
+      interval: 10s
+      timeout: 30s
+      retries: 5
     volumes:
       - db_data:/var/lib/mysql
+    networks:
+      - linkstack_net
 
 volumes:
+  linkstack_data:
   db_data:
+
+networks:
+  linkstack_net:
