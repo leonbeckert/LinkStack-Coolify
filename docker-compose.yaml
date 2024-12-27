@@ -9,13 +9,13 @@ services:
       - APP_ENV=production
       - APP_DEBUG=false
       - APP_KEY=base64:random_key
-      - APP_URL=${SERVICE_FQDN_LINKSTACK:-http://localhost}
+      - APP_URL=${SERVICE_FQDN_LINKSTACK}
       # Database configuration
       - DB_CONNECTION=mysql
       - DB_HOST=db
       - DB_PORT=3306
       - DB_DATABASE=linkstack
-      - DB_USERNAME=${SERVICE_USER_DB:-linkstack_user}
+      - DB_USERNAME=${SERVICE_USER_DB}
       - DB_PASSWORD=${SERVICE_PASSWORD_DB}
       - DB_PREFIX=linkstack_
       # Cache and session drivers
@@ -49,7 +49,7 @@ services:
       # MySQL configuration using Coolify-generated passwords
       - MYSQL_ROOT_PASSWORD=${SERVICE_PASSWORD_MYSQL_ROOT}
       - MYSQL_DATABASE=linkstack
-      - MYSQL_USER=${SERVICE_USER_DB:-linkstack_user}
+      - MYSQL_USER=${SERVICE_USER_DB:-linkstack}
       - MYSQL_PASSWORD=${SERVICE_PASSWORD_DB}
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root --password=$${MYSQL_ROOT_PASSWORD} || exit 1"]
