@@ -10,14 +10,16 @@ services:
       - APP_ENV=production
       - APP_DEBUG=false
       - APP_KEY=base64:random_key
+      - _APP_URL=$SERVICE_FQDN_LINKSTACK
+      - SERVICE_FQDN_LINKSTACK_3000
       - DB_CONNECTION=mysql
       - DB_HOST=db
       - DB_PORT=3306
       - DB_DATABASE=linkstack
-      - SERVICE_USER_DB=
-      - SERVICE_PASSWORD_DB=
-      - DB_USERNAME=$SERVICE_USER_DB
-      - DB_PASSWORD=$SERVICE_PASSWORD_DB
+      - SERVICE_USER_DB
+      - SERVICE_PASSWORD_DB
+      - DB_USERNAME=${SERVICE_USER_DB}
+      - DB_PASSWORD=${SERVICE_PASSWORD_DB}
       - DB_PREFIX=linkstack_
       - CACHE_DRIVER=file
       - SESSION_DRIVER=file
@@ -30,12 +32,13 @@ services:
     ports:
       - "3306:3306"
     environment:
-      - SERVICE_USER_MYSQL=
-      - SERVICE_PASSWORD_MYSQL=
-      - MYSQL_ROOT_PASSWORD=$SERVICE_MYSQL_ROOT_PASSWORD
+      - SERVICE_USER_MYSQL
+      - SERVICE_PASSWORD_MYSQL
+      - SERVICE_PASSWORD_MYSQL_ROOT
+      - MYSQL_ROOT_PASSWORD=${SERVICE_PASSWORD_MYSQL_ROOT}
       - MYSQL_DATABASE=linkstack
-      - MYSQL_USER=$SERVICE_MYSQL_USER
-      - MYSQL_PASSWORD=$SERVICE_MYSQL_PASSWORD
+      - MYSQL_USER=${SERVICE_MYSQL_USER}
+      - MYSQL_PASSWORD=${SERVICE_MYSQL_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
 
