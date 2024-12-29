@@ -39,7 +39,6 @@ services:
       retries: 3
     volumes:
       - linkstack_data:/htdocs
-    user: apache:apache
     networks:
       - linkstack_net
 
